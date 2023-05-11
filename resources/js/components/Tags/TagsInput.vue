@@ -22,7 +22,7 @@ export default {
         return {
             input: '',
             suggestions: [],
-            tagsInput: this.tags,
+            tagsInput: this.tags, //  || [],
         };
     },
 

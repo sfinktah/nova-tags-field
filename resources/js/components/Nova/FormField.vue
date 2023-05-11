@@ -1,8 +1,7 @@
 <template>
     <DefaultField :field="field" :errors="errors" :show-help-text="showHelpText">
         <template #field>
-            <component
-                :is="component"
+            <MultiTagsInput
                 :name="field.attribute"
                 :type="field.type"
                 :suggestion-limit="field.suggestionLimit"
@@ -12,7 +11,7 @@
                 :placeholder="field.placeholder"
                 :can-be-deselected="field.canBeDeselected"
                 v-model="tags"
-            ></component>
+            ></MultiTagsInput>
         </template>
     </DefaultField>
 </template>

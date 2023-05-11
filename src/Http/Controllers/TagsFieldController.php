@@ -28,4 +28,28 @@ class TagsFieldController extends Controller
 
         return $sorted->map(fn (Tag $tag) => $tag->name);
     }
+
+    public function update(NovaRequest $request)
+    {
+//        dd($request);
+//        +request: Symfony\Component\HttpFoundation\InputBag {#1658
+//        #parameters: array:3 [
+//        "id" => 43
+//        "attribute" => "tags"
+//        "tag" => "cadillac"
+        $resourceClass = $request->resource();
+        $resourceValidationRules = $resourceClass::rulesForUpdate($request);
+        $fieldValidationRules = $resourceValidationRules[$request->attribute] ?? [];
+
+        if (!empty($fieldValidationRules)) {
+            $validatedData = $request->validate([
+                'value' => $fieldValidationRules,
+            ]);
+        }
+
+        $model = $request->model()->find($request->id);
+        $model->removeTags([$request->tag]);
+//        $model->{$request->attribute} = $request->value;
+//        $model->save();
+    }
 }

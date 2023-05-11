@@ -3,6 +3,7 @@
 namespace Spatie\TagsField;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
@@ -106,21 +107,40 @@ class Tags extends Field
         return $this;
     }
 
+    protected function anotherFillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
+    {
+        if ($request->exists($requestAttribute)) {
+            $value = $request[$requestAttribute];
+
+            $model->{$attribute} = $this->isValidNullValue($value) ? null : json_decode($value, true);
+        }
+    }
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
-        $requestValue = $request[$requestAttribute];
-        $tagNames = explode('-----', $requestValue);
-        $tagNames = array_filter($tagNames);
+        if ($request->exists($requestAttribute)) {
+            $value = $request[$requestAttribute];
 
-        $class = get_class($model);
+            $tagNames = explode('-----', $value);
+            $tagNames = array_filter($tagNames);
 
-        $class::saved(function ($model) use ($tagNames) {
-            $model->syncTagsWithType($tagNames, $this->meta()['type'] ?? null);
-        });
+            $class = get_class($model);
+            if ($class == "Illuminate\Support\Fluent") {
+                // Might just be using the Tags formfield inside an Action or something...
+                $model->{$attribute} = $this->isValidNullValue($value) ? null : $tagNames;
+                return;
+            }
+
+            $class::saved(function ($model) use ($tagNames) {
+                $model->syncTagsWithType($tagNames, $this->meta()['type'] ?? null);
+            });
+        }
+
     }
 
     public function resolveAttribute($resource, $attribute = null)
     {
+        $this->setResourceId(data_get($resource, $resource->getKeyName()));
+
         $tags = $resource->tags;
 
         if (Arr::has($this->meta(), 'type')) {
@@ -131,4 +151,10 @@ class Tags extends Field
             return $tag->name;
         })->values();
     }
+
+    protected function setResourceId($id)
+    {
+        return $this->withMeta(['id' => $id, 'nova_path' => Config::get('nova.path')]);
+    }
+
 }

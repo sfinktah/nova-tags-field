@@ -1,5 +1,5 @@
 <template>
-    <tags-input
+    <TagsInput
         :tags="tagsInput"
         :type="type"
         :suggestion-limit="suggestionLimit"
@@ -46,7 +46,8 @@
             <ul v-if="suggestions.length" class="flex mt-2 p-0">
                 <li v-for="suggestion in suggestions" :key="suggestion" class="mr-2">
                     <button
-                        class="px-2 py-1 bg-primary-100 rounded text-primary-500"
+                        class="btn btn-sm btn-info normal-case"
+                        spatie-class="px-2 py-1 bg-primary-100 rounded text-primary-500"
                         @mousedown.prevent
                         @click.prevent="insertSuggestion(suggestion)"
                     >
@@ -55,7 +56,7 @@
                 </li>
             </ul>
         </template>
-    </tags-input>
+    </TagsInput>
 </template>
 
 <script>
